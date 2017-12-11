@@ -32,10 +32,14 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.13.3",
+    "cheerio": "^1.0.0-rc.2",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
+    "moment": "^2.19.3",
     "morgan": "^1.8.0",
+    "promise": "^8.0.1",
+    "request": "^2.83.0",
     "resource-router-middleware": "^0.6.0"
   },
   "devDependencies": {
