@@ -1,0 +1,17 @@
+html, body, #root {
+  height: 100%;
+  font-family: "Montserrat";
+  overflow: hidden;
+}
+
+#root, .expand {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
