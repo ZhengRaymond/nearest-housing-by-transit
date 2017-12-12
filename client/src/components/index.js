@@ -5,5 +5,5 @@ import Map from './map';
 
 export {
   List,
-  Map
+  Map,
 }

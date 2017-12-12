@@ -1,0 +1,7 @@
+#PlacesAutocomplete__root input::placeholder {
+  color: #bbb;
+}
+
+.error #PlacesAutocomplete__autocomplete-container {
+  display: none !important;
+}
