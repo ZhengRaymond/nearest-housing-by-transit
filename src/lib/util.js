@@ -1,4 +1,4 @@
-
+import Promise from 'promise';
 /**	Creates a callback that proxies node callback style arguments to an Express Response object.
  *	@param {express.Response} res	Express HTTP Response
  *	@param {number} [status=200]	Status code to send on success
@@ -30,4 +30,19 @@ export function QueryStringToJSON(input) {
   });
 
   return JSON.parse(JSON.stringify(result));
+}
+
+export function googleAsynch(call, params) {
+	try {
+		let response = new Promise((resolve, reject) => {
+			call(params, (err, data) => {
+				if (err) reject(err);
+				resolve(data);
+			});
+		});
+		return [null, response];
+	}
+	catch(err) {
+		return [err, null];
+	}
 }
