@@ -1,20 +1,35 @@
-const Promise = require('promise');
-const moment = require('moment');
-const { parseLocation: parseAddress } = require('parse-address');
-const craigslist = require('node-craigslist');
-const google_maps = require('@google/maps');
-const fs = require('fs');
+import lodash from 'lodash';
+import Promise from 'promise';
+import request from 'request-promise';
+import moment from 'moment';
 
-/* Craigslist configuration; mapping of cities to craigslist sites and clients */
-const craigslist_cities = require('./craigslist_cities');
-const craigslist_clients = {
-  // citySearchKeyword/Name:  client with options xxx.craigslist.com
-};
+import chalk from 'chalk';
+const error = chalk.bold.red;
+const warning = chalk.keyword('orange');
+
+import NodeGeocoder from 'node-geocoder';
+const geocoder = NodeGeocoder({
+  provider: 'google',
+  apiKey: process.env.GOOGLE_MAPS_API_KEY,
+});
+
 
 /* Google Maps API client */
+import google_maps from '@google/maps';
 const googleMapsClient = google_maps.createClient({
   key: process.env.GOOGLE_MAPS_API_KEY
 });
+
+/* Craigslist configuration; mapping of cities to craigslist sites and clients */
+import craigslist from 'node-craigslist';
+const CL_hostLookup_BASE = 'https://craigslist.org/suggest?v=12&type=subarea&term=';
+const CL_hostLookup_OPTS = {
+  v: 12,
+  type: 'subarea'
+};
+const craigslist_clients = {
+  // citySearchKeyword/Name:  client with options xxx.craigslist.com
+};
 
 //
 // googleMapsClient.distanceMatrix({
@@ -43,36 +58,41 @@ const googleMapsClient = google_maps.createClient({
 
 
 
-const properties = (req, res) => {
-  const { query, distance } = req.params;
-  let listings = [];
+async function properties(req, res) {
+  const { location, distance } = req.query;
+  console.log('A')
+
   /* Get source location information from Google's Places API */
-  new Promise((resolve, reject) => {
-    googleMapsClient.places({ query }, (err, data) => {
-      if (err) return reject(err);
-      resolve(data);
+  try {
+    const { lat, lng, addr_string } = await new Promise((resolve, reject) => {
+      console.log('B')
+      googleMapsClient.places({ query: location }, (err, data) => {
+        if (err) reject(err);
+        if (data.json.status !== "OK") reject(data.json.status);
+
+        const geodetail = data.json.results[0];
+        resolve({
+          lat: geodetail.geometry.location.lat,
+          lng: geodetail.geometry.location.lng,
+          addr_string: geodetail.formatted_address
+        });
+      });
     });
-  }).then((data) => {
-    const { lat, lng } = data.json.results[0].geometry.location;
-    const addr_string = data.json.results[0].formatted_address;
-    const addr_parsed = parseAddress(addr_string);
+    console.log("C", lat, lng, addr_string);
+  }
+  catch(err) {
+    console.error(error(err));
+  }
 
-    const get_listings = [];
+  const reverseGeocode = await geocoder.reverse({ lat, lon: lng });
+  const address = reverseGeocode[0];
 
-    /* Craigslist */
-    let listings = getListingsCraigslist(addr_parsed.zip, addr_parsed.city.toLocaleLowerCase(), distance);
-    if (listings) get_listings.push(listings);
+  const async_listings = [];
+  async_listings.push(getListingsCraigslist(address.city, distance));
 
-    return new Promise.all(get_listings);
-  }).then((data) => {
-    listings = [].concat.apply([], data);
-    res.send(listings).status(200);
-  }).catch((err) => {
-    console.error(err);
-    res.sendStatus(500);
-  });
-
-  // res.send(result);
+  const data = await Promise.all(async_listings);
+  const listings = [].concat.apply([], data);
+  res.send(listings).status(200);
 };
 
 
@@ -84,36 +104,54 @@ const properties = (req, res) => {
  * @param distance max distance of search to location
  * @returns promise for asynch call to scrape craigslist housing listings
 **/
-function getListingsCraigslist(zip, city, distance) {
-  if (zip && city) { // if client doesn't exist, create a new mapping to a new client
-    if (!(city in craigslist_clients)) {
-      let url = findCraigslistSite(city);
-      if (!url) {
-        craigslist_clients[city] = null;
-        return null;
-      }
-      craigslist_clients[city] = new craigslist.Client({ city: url });
-    }
-    const client = craigslist_clients[city];
+async function getListingsCraigslist(search, distance) {
+  if (!search) return;
+  if ((search in craigslist_clients) === false) {
+    var url = await findCraigslistSite(search);
+    console.log('URL@@@@:', url);
+    if (!url) return;
+    craigslist_clients[city] = new craigslist.Client({ city: url });
+  }
 
-    if (client) { // get listings from client
-      return (
-        client.list({
-          category: 'hhh',
-          postal: zip,
-          searchDistance: distance / 4  // assumes 4 minutes per mile
-        }).then((listings) => {
-          var noduplicate = {};
+  const client = craigslist_clients[search];
+  if (!client) return;
+  if (client) { // get listings from client
+    const options = {
+      category: 'hhh',
+      postal: zip,
+      searchDistance: distance / 4, // assumes 4 minutes per mile
+      bundleDuplicates: true,
+    };
+    return (
+      client.search(options, '')
+        .then((listings) => lodash.uniqBy(listings, (listing) => listing.title))        // remove duplicate titles
+        .then((listings) => lodash.map(listings, (listing) => client.details(listing))) // get details
+        .then((listings) => Promise.all(listings))                                      // wait for all details
+        .then((listings) => lodash.uniqBy(listings, (listing) => listing.description))  // remove duplicate descriptions
+        .then((listings) => lodash.filter(listings, (listing) => listing.mapUrl))       // remove entries without map data
+        .then((listings) => {
+          var asyncReqs = [];
           listings.forEach((listing) => {
-            const { title } = listing;
-            if (!(title in noduplicate)) {
-              noduplicate[title] = listing;
+            const mapUrlRaw = listing.mapUrl;
+            if (mapUrlRaw.indexOf('https://maps.google.com/maps/preview/@') !== -1) {
+              const coordinates = mapUrlRaw.split('@')[1].split(',');
+              const LatLng = {
+                lat: coordinates[0],
+                lon: coordinates[1]
+              };
+              asyncReqs.push(geocoder.reverse(LatLng).then((data) => listing.address = data[0].formattedAddress));
+            }
+            else {
+              const mapUrlQueryString = listing.mapUrl.substr(listing.mapUrl.indexOf('?') + 1);
+              const urlParams = QueryStringToJSON(mapUrlQueryString);
+              listing.address = urlParams.q.replace(/\+/g, ' ').substr(5);
             }
           });
-          return noduplicate;
+          return Promise.all(asyncReqs).then(() => {
+            return listings;
+          });
         })
-      )
-    }
+    );
 
     return null;
   }
@@ -126,15 +164,25 @@ function getListingsCraigslist(zip, city, distance) {
  * @returns the url of the craigslist subdomain
 **/
 function findCraigslistSite(city) {
-  if (city in craigslist_cities) return craigslist_cities[city];
-
-  for (let name in craigslist_cities) {
-    if (name.indexOf(city) !== -1) {
-      const craigslist_site = craigslist_cities[name];
-      // fs.appendFile('craigslist_cities.json', '') ????
-      return craigslist_site;
-    }
-  }
+  return request(`${CL_hostLookup_BASE}`, { qs: {
+    ...CL_hostLookup_OPTS,
+    term: city
+  }})
+    .then((dataStr) => JSON.parse(dataStr))
+    .then((data) => { console.log(data); return data })
+    .then((data) => data.length && data[0])
+    .then((url) => { console.log("DATA is ", url); return url })
+    .then((url) => { console.log("URL is ", url); return url })
+    .then((url) => url && url.substring(0, url.indexOf('.')));
+  // if (city in craigslist_cities) return craigslist_cities[city];
+  //
+  // for (let name in craigslist_cities) {
+  //   if (name.indexOf(city) !== -1) {
+  //     const craigslist_site = craigslist_cities[name];
+  //     // fs.appendFile('craigslist_cities.json', '') ????
+  //     return craigslist_site;
+  //   }
+  // }
   // final alternatives, search google city/zip as keyword, specifying
   // "craigslist.com" or "craigslist.ca", etc. as the domain
 }

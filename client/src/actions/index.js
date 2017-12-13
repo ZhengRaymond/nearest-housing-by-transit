@@ -23,10 +23,10 @@ export const getListings = (location, distance) => {
         distance
       }
     }).then(({ data }) => {
-      const removeDuplicates = lodash.uniqBy(data, (listing) => listing.title.toLocaleLowerCase());
-
-      // return dispatch(receiveListings(data));
-      return dispatch(receiveListings(Object.values(removeDuplicates)));
-    }).catch((err) => console.error(err));
+      return dispatch(receiveListings(data));
+    }).catch((err) => {
+      console.error(err);
+      return dispatch(receiveListings([]));
+    });
   }
 }

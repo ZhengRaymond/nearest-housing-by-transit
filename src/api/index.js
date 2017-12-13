@@ -9,7 +9,7 @@ export default ({ config, db }) => {
 	// mount the facets resource
 	api.use('/facets', facets({ config, db }));
 
-	api.get('/properties/:query/:distance', properties);
+	api.get('/properties', properties);
 
 	api.get('/health', (req, res) => {
 		res.send(200);

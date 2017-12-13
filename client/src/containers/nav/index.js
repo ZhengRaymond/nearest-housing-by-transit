@@ -48,40 +48,72 @@ class Nav extends Component {
   render() {
     const { activeTab } = this.state;
     return (
-      <Header>
-        <SubHeader>
-          <Link onClick={this.tabClick} style={{ borderColor: 'Home' === activeTab ? '#26ffbd' : 'transparent' }} to="/">Home</Link>
-        </SubHeader>
-        <SearchInput disabled={this.props.loading} className={this.state.error ? 'error' : ''}>
-          <SearchIcon/>
-          <PlacesAutocomplete
-            inputProps={{
-              value: this.state.search,
-              onChange: this.onSearchChange,
-              placeholder: "e.g. Googleplex, Mountain View, CA",
-              autoFocus: true
-            }}
-            options={{
-              componentRestrictions: {
-                country: 'us'
-              }
-            }}
-            onError={this.onError}
-            highlightFirstSuggestion={true}
-            onSelect={this.onSelect}
-            styles={ this.state.searchStyle }
-          />
-        </SearchInput>
-        <SubHeader>
-          <Link onClick={this.tabClick} style={{ borderColor: 'About' === activeTab ? '#26ffbd' : 'transparent' }} to="/about">About</Link>
-          <Link onClick={this.tabClick} style={{ borderColor: 'Contact' === activeTab ? '#26ffbd' : 'transparent' }} to="/contact">Contact</Link>
-        </SubHeader>
-      </Header>
+      <Container>
+        <Main>
+          <Header>
+            <SubHeader>
+              <Link onClick={this.tabClick} style={{ borderColor: 'Home' === activeTab ? '#26ffbd' : 'transparent' }} to="/">Home</Link>
+            </SubHeader>
+            <SearchInput disabled={this.props.loading} className={this.state.error ? 'error' : ''}>
+              <SearchIcon/>
+              <PlacesAutocomplete
+                inputProps={{
+                  value: this.state.search,
+                  onChange: this.onSearchChange,
+                  placeholder: "e.g. Googleplex, Mountain View, CA",
+                  autoFocus: true
+                }}
+                options={{
+                  componentRestrictions: {
+                    country: 'us'
+                  }
+                }}
+                onError={this.onError}
+                highlightFirstSuggestion={true}
+                onSelect={this.onSelect}
+                styles={ this.state.searchStyle }
+              />
+              { /* <Details className="details"/> */ }
+            </SearchInput>
+            <SubHeader>
+              <Link onClick={this.tabClick} style={{ borderColor: 'About' === activeTab ? '#26ffbd' : 'transparent' }} to="/about">About</Link>
+              <Link onClick={this.tabClick} style={{ borderColor: 'Contact' === activeTab ? '#26ffbd' : 'transparent' }} to="/contact">Contact</Link>
+            </SubHeader>
+          </Header>
+        </Main>
+      </Container>
     );
   }
 }
 
 export default Nav;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-height: 200px;
+`;
+
+const Main = styled.div`
+
+`;
+
+const Details = styled.div`
+  position: absolute;
+  left: 0%;
+  top: 55px;
+  z-index: 1;
+  width: 100vw;
+  height: 100px;
+  max-height: 0px;
+
+  border-bottom: solid 6px #888;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.96);
+  transition: 0.3s linear;
+`;
 
 const SearchIcon = styled(SearchIconFA)`
   color: #888;
@@ -102,18 +134,22 @@ const SearchInput = styled.div`
 
   &:focus-within {
     border: solid 1px ${props => props.disabled ? '#bbb' : '#00d694' };
+
+    &>.details {
+      max-height: 100px;
+    }
+
+    &>svg {
+      color: ${props => props.disabled ? '#bbb' : '#00d694' };
+    }
   }
 
   &>svg {
     transition: 0.2 ease;
   }
-  &:focus-within>svg {
-    color: ${props => props.disabled ? '#bbb' : '#00d694' };
-  }
 
   & input {
-    flex: 1;
-    align-self: stretch;
+    vertical-align: middle;
     background-color: transparent;
     border: none;
     font-size: 18px;

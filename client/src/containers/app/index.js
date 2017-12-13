@@ -41,25 +41,18 @@ class App extends Component {
 
 
 const mapStateToProps = ({ listings }) => {
-  if (listings.loading === true) {
-    return {
-      loading: true,
-      listings: []
-    };
-  }
-  if (!listings.data) {
+  if (listings.data && !listings.loading) {
     return {
       loading: false,
-      listings: []
+      listings: listings.data
     }
   }
-  // const titles = [];
-  // listings.data.map((listing) => titles.push(listing.title));
+
   return {
-    loading: false,
-    // listings: titles
-    listings: listings.data
-  };
+    loading: true,
+    listings: []
+  }
+
 };
 
 const mapDispatchToProps = (dispatch) => {

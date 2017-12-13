@@ -32,14 +32,18 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.13.3",
+    "chalk": "^2.3.0",
     "cheerio": "^1.0.0-rc.2",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
+    "lodash": "^4.17.4",
     "moment": "^2.19.3",
-    "morgan": "^1.8.0",
+    "morgan": "^1.9.0",
+    "node-geocoder": "^3.21.1",
     "promise": "^8.0.1",
     "request": "^2.83.0",
+    "request-promise": "^4.2.2",
     "resource-router-middleware": "^0.6.0"
   },
   "devDependencies": {

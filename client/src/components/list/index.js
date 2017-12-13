@@ -9,29 +9,32 @@ class List extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      listingElements: [],
+      listings: [],
       lastLoaded: 0,
-      // hasMore: true
+      hasMore: true
     };
     this.loadMore = this.loadMore.bind(this);
   }
 
   loadMore(page) {
-    var { listingElements, lastLoaded } = this.state;
+    console.log('loadMore');
+    var { listingElements, lastLoaded, hasMore } = this.state;
     for (var i = lastLoaded; i < lastLoaded + 10; i++) {
       if (i >= this.props.listings.length) {
-        // newState.hasMore = false;
+        hasMore = false;
         break;
       }
-      const listing = this.props.listings[i];
-      listingElements.push((
-        <Listing key={listing.title} index={i} data={listing} />
+      // const listing = this.props.listings[i];
+      var listings = this.state.listings;
+      listings.push((
+        this.props.listings[i]
       ))
     }
     lastLoaded = i;
     this.setState({
       lastLoaded,
-      listingElements,
+      listings,
+      hasMore
     });
   }
 
@@ -64,12 +67,16 @@ class List extends React.Component {
         <InfiniteScroll
           pageStart={0}
           loadMore={this.loadMore}
-          hasMore={true}
+          hasMore={this.state.hasMore}
           useWindow={false}
           loader={<div className="loader">Loading ...</div>}
         >
           <ScrollingDiv>
-            {this.state.listingElements}
+            {
+              this.state.listings && this.state.listings.map((listing, i) => (
+                <Listing key={listing.title} index={i} data={listing} />
+              ))
+            }
           </ScrollingDiv>
         </InfiniteScroll>
       </Container>
