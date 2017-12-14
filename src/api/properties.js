@@ -39,9 +39,20 @@ const CL_clients = {
   // city:  client with options xxx.craigslist.com
 };
 
+/* Temp cache for testing: */
+var CACHE = {
+  // searchInput: responseListings
+}
+
 
 async function properties(req, res) {
   const { location, distance } = req.query;
+
+  const key = `${location}|${distance}`;
+  if (key in CACHE) {
+    console.log(CACHE[key]);
+    return res.send(CACHE[key]).status(200);
+  }
 
   let response;
 
@@ -73,6 +84,7 @@ async function properties(req, res) {
   if (response === undefined) return res.sendStatus(400);
   const listings = [].concat.apply([], response);
 
+  // CACHE[key] = listings;
   res.send(listings).status(200);
 };
 
@@ -105,18 +117,19 @@ async function getListingsCraigslist(city, zip, distance) {
   const client = CL_clients[city];
   if (!client) return;
   const options = {
-    category: 'hhh',
+    category: 'apa',
     postal: zip,
     searchDistance: distance / 4, // assumes 4 minutes per mile
     bundleDuplicates: true,
   };
-  var geocoder_indices = []; /* For batch reverse geocoding: */
-  var geocoder_coordinates = []; /* For batch reverse geocoding: */
-  var listing_results = [];
-  response = await client.search(options, '')
+  response = await client.list(options)
     .then((listings) => lodash.uniqBy(listings, (listing) => listing.title))        // remove duplicate titles
-    .then((listings) => lodash.map(listings, (listing) => client.details(listing))) // get details
-    .then((listings) => Promise.all(listings))                                      // wait for all details
+    .then(async (listings) => {
+      const async_details = lodash.map(listings, (listing) => client.details(listing)); // get details
+      const details = await Promise.all(async_details);
+      listings.forEach((listing, index) => Object.assign(listing, details[index]));
+      return listings;
+    })
     .then((listings) => lodash.uniqBy(listings, (listing) => listing.description))  // remove duplicate descriptions
     .then((listings) => lodash.filter(listings, (listing) => listing.mapUrl))       // remove entries without map data
     .then((listings) => {
@@ -130,13 +143,8 @@ async function getListingsCraigslist(city, zip, distance) {
         /* latitude longitude listing: */
         if (mapUrlRaw.indexOf('https://maps.google.com/maps/preview/@') !== -1) {
           const coordinates = mapUrlRaw.split('@')[1].split(',');
-          const LatLng = {
-            lat: coordinates[0],
-            lon: coordinates[1]
-          };
-          /* Save coordinates for batch processing: */
-          geocoder_indices.push(index);
-          geocoder_coordinates.push(LatLng);
+          listing.lat = coordinates[0];
+          listing.lng = coordinates[1];
         }
         /* address listing: */
         else {
@@ -145,23 +153,11 @@ async function getListingsCraigslist(city, zip, distance) {
           listing.address = urlParams.q.replace(/\+/g, ' ').substr(5);
         }
       });
-      /* Save all pre-processing work into listing_results */
-      listing_results = listings;
-      /* Promise chain the batch reverse geocoding */
-      return geocoder.batchGeocode(geocoder_coordinates);
-    })
-    .then((addresses) => { // <-- decoded addresses
-       addresses.forEach((address, index) => {
-         const { error, value } = address;
-         const listingIndex = geocoder_indices[index];
-         if (error) listing_results.splice(listingIndex, 1); // no address found, remove listing
-         else listing_results[listingIndex].address = value; // address found, save it.
-       });
-       return 1; // success code for await error handling
+      return listings;
     })
     .catch(logError)
   if (response === undefined) return;
-  return listing_results;
+  return response;
 }
 
 export default properties;

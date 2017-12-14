@@ -16,7 +16,7 @@ class App extends Component {
     this.initializeMap = (map) => this.setState({ ...this.state, map });
   }
 
-  getListings(location, distance = 60) {
+  getListings(location, distance = 0) {
     if (this.props.getListings) {
       this.props.getListings(location, distance);
     }

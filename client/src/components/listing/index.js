@@ -11,13 +11,26 @@ const google = window.google;
 class Listing extends React.Component {
   render() {
     const listing = this.props.data;
-
-    // console.log(info)
+    const location = listing.address || (`(${listing.lat},${listing.lng})`);
+    var secondDollar = listing.price.indexOf('$', 1);
+    if (secondDollar === -1) secondDollar = listing.price.length;
+    const price = listing.price.substring(0, secondDollar)
+    const url = <a target="_blank" href={listing.url}>{listing.url}</a>;
     return (
       <ListingContainer even={this.props.index % 2 === 0}>
         <ImageSlider images={listing.images} />
-
-        <Title> { listing.title } </Title>
+        <Text>
+          <Title>{ listing.title }</Title>
+          <Details>
+            <div>Location: </div><div>{location}</div>
+          </Details>
+          <Details>
+            <div>Original Posting: </div><em>{url}</em>
+          </Details>
+          <Details>
+            <div>Price: </div><div>{price}</div>
+          </Details>
+        </Text>
       </ListingContainer>
     )
   }
@@ -29,31 +42,39 @@ const ImageSlider = (props) => {
       // (imageURL) => (<ImageContainer key={imageURL}><img src={imageURL}/></ImageContainer>)
       (imageURL) => (<ImageContainer key={imageURL}><img src={imageURL}/></ImageContainer>)
     );
-    var settings = {
-      dots: false,
-      arrows: false,
+    const settings = {
+      dots: true,
+      arrows: true,
       infinite: true,
       pauseOnHover: true,
       speed: 500,
       autoplay: true,
-      autoplaySpeed: 8000,
+      autoplaySpeed: 15000,
       slidesToShow: 1,
       centerPadding: '0',
-      lazyLoad: true
+      lazyLoad: true,
+      responsive: [
+        {
+          breakpoint: 100,
+          settigns: {
+            arrows: true
+          }
+        }
+      ]
     };
     return (
       <SliderContainer>
-        {/*<Slider {...settings}>
+        { <Slider {...settings}>
           { images }
-        </Slider>*/}
-        { images.length > 0 && images[0] }
+        </Slider> }
+        { /* images.length > 0 && images[0] */ }
       </SliderContainer>
     )
   }
 
   return (
     <SliderContainer>
-      <div style={{ height: "150px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ height: "15099px", display: "flex", justifyContent: "center", alignItems: "center" }}>
         No Images
       </div>
     </SliderContainer>
@@ -64,28 +85,56 @@ export default Listing;
 
 
 const SliderContainer = styled.div`
-  width: 100%;
+  width: 50%;
   overflow: hidden;
   box-sizing: border-box;
   min-height: 50px;
-  max-height: 200px;
   box-shadow: 0px 0px 6px #ddd;
   border-radius: 5px;
   background-color: white;
   color: black;
 `;
 
+const Text = styled.div`
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+`;
+
 const Title = styled.div`
-  width: 100%;
-  font-size: 14px;
-  color: #555;
-  margin: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #079a56;
+  margin: 5px;
+
   font-family: Montserrat;
   font-weight: 700;
 `;
 
+const Details = styled.div`
+  margin: 5px;
+  margin-left: 20px;
+  font-weight: light;
+  font-size: 0.65em;
+  color: #777;
+
+  & a {
+    color: #00bb68;
+    &:visited {
+      color: #4d8259;
+    }
+  }
+
+  & div:first-child {
+    margin-left: -5px;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #5f7760;
+  }
+`;
+
 const ImageContainer = styled.div`
-  background-color: red
+  flex:1
   width: 100%;
   height: 100%;
   & img {
