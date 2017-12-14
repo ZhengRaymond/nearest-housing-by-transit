@@ -14,11 +14,11 @@ class Listing extends React.Component {
     const location = listing.address || (`(${listing.lat},${listing.lng})`);
     var secondDollar = listing.price.indexOf('$', 1);
     if (secondDollar === -1) secondDollar = listing.price.length;
-    const price = listing.price.substring(0, secondDollar)
+    const price = parseInt(listing.price.substring(1, secondDollar)).toLocaleString('en');
     const url = <a target="_blank" href={listing.url}>{listing.url}</a>;
     return (
       <ListingContainer even={this.props.index % 2 === 0}>
-        <ImageSlider images={listing.images} />
+        <ImageSlider images={listing.images} price={price} />
         <Text>
           <Title>{ listing.title }</Title>
           <Details>
@@ -26,9 +26,6 @@ class Listing extends React.Component {
           </Details>
           <Details>
             <div>Original Posting: </div><em>{url}</em>
-          </Details>
-          <Details>
-            <div>Price: </div><div>{price}</div>
           </Details>
         </Text>
       </ListingContainer>
@@ -64,10 +61,12 @@ const ImageSlider = (props) => {
     };
     return (
       <SliderContainer>
-        { <Slider {...settings}>
+        <Slider {...settings}>
           { images }
-        </Slider> }
-        { /* images.length > 0 && images[0] */ }
+        </Slider>
+        <PriceTag>
+          { "$ " + props.price }
+        </PriceTag>
       </SliderContainer>
     )
   }
@@ -83,9 +82,30 @@ const ImageSlider = (props) => {
 
 export default Listing;
 
+const ListingContainer = styled.div`
+display: flex;
+flex-direction: column;
+align-items: stretch;
+padding: 20px;
+box-sizing: border-box;
+color: black;
+background-color: white;
+`;
+// possible colors: #3bba7a, d0e5df
+
+const ImageContainer = styled.div`
+  flex:1
+  width: 100%;
+  height: 100%;
+  & img {
+    object-fit: cover;
+    width: 100%;
+    height: 80%;
+  }
+`;
 
 const SliderContainer = styled.div`
-  width: 50%;
+  width: 100%;
   overflow: hidden;
   box-sizing: border-box;
   min-height: 50px;
@@ -95,25 +115,31 @@ const SliderContainer = styled.div`
   color: black;
 `;
 
+const PriceTag = styled.div`
+  position: relative;
+  bottom: 10%;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px;
+  box-shadow: 1px 2px 8px #000;
+  font-size: 18px;
+`;
+
+
 const Text = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 `;
 
 const Title = styled.div`
-  text-align: center;
   font-size: 0.9em;
   color: #079a56;
-  margin: 5px;
-
+  margin-top: 5px;
   font-family: Montserrat;
   font-weight: 700;
 `;
 
 const Details = styled.div`
-  margin: 5px;
-  margin-left: 20px;
+  margin: 3px 15px;
   font-weight: light;
   font-size: 0.65em;
   color: #777;
@@ -126,34 +152,12 @@ const Details = styled.div`
   }
 
   & div:first-child {
-    margin-left: -5px;
+    margin-left: -15px;
     font-weight: bold;
     font-size: 1.1em;
     color: #5f7760;
   }
 `;
-
-const ImageContainer = styled.div`
-  flex:1
-  width: 100%;
-  height: 100%;
-  & img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-  }
-`;
-
-const ListingContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  padding: 6px;
-  box-sizing: border-box;
-  background-color: ${props => props.even ? 'white' : '#efefef' };
-  color: ${props => props.even ? 'black' : 'black'};
-`;
-// possible colors: #3bba7a, d0e5df
 
 //TODO:
 // 1. detail list pane (click on item in list, show full panel details, with back button to go back to SAVED scroll location)
