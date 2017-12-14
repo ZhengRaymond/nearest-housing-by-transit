@@ -33,6 +33,19 @@ class Map extends React.Component {
     this.props.initializeMap(map);
   }
 
+
+
+  componentDidUpdate() {
+
+    // var marker = new google.maps.Marker({
+    //   position: newPos,
+    //   map: this.refs.map
+    // });
+
+    //setCenter
+    //setZoom
+  }
+
   render() {
     return (
       <MapContainer>
@@ -49,4 +62,12 @@ export default Map;
 const MapContainer = styled.div`
   flex: 3;
   display: flex;
+  border-left: solid 1px #21ce99;
+  @media (max-width: 850px) {
+    flex: 2;
+  }
+  @media (max-width: 700px) {
+    border: none;
+    flex: 0;
+  }
 `;

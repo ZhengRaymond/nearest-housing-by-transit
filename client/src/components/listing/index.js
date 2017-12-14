@@ -83,18 +83,21 @@ const ImageSlider = (props) => {
 export default Listing;
 
 const ListingContainer = styled.div`
-display: flex;
-flex-direction: column;
-align-items: stretch;
-padding: 20px;
-box-sizing: border-box;
-color: black;
-background-color: white;
+  display: flex;
+  flex-direction: row;
+  @media (max-width: 1000px) {
+    flex-direction: column;
+  }
+  align-items: stretch;
+  padding: 20px;
+  box-sizing: border-box;
+  color: black;
+  background-color: white;
 `;
 // possible colors: #3bba7a, d0e5df
 
 const ImageContainer = styled.div`
-  flex:1
+  flex:1;
   width: 100%;
   height: 100%;
   & img {
@@ -105,41 +108,54 @@ const ImageContainer = styled.div`
 `;
 
 const SliderContainer = styled.div`
-  width: 100%;
+  width: 45%;
+  @media (max-width: 1000px) {
+    width: 100%;
+    box-shadow: 0 0 10px #000;
+  }
   overflow: hidden;
   box-sizing: border-box;
   min-height: 50px;
-  box-shadow: 0px 0px 6px #ddd;
   border-radius: 5px;
   background-color: white;
   color: black;
 `;
 
 const PriceTag = styled.div`
-  position: relative;
-  bottom: 10%;
   background-color: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 8px;
-  box-shadow: 1px 2px 8px #000;
   font-size: 18px;
 `;
 
 
 const Text = styled.div`
+  width: 55%;
+  @media (max-width: 1000px) {
+    width: 100%;
+  }
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
 `;
 
 const Title = styled.div`
+  margin: 3px 10px;
+  @media (max-width: 1000px) {
+    margin-left: 0px;
+    margin-top: 6px;
+  }
   font-size: 0.9em;
   color: #079a56;
-  margin-top: 5px;
   font-family: Montserrat;
   font-weight: 700;
 `;
 
 const Details = styled.div`
-  margin: 3px 15px;
+  margin: 3px 25px;
+  @media (max-width: 1000px) {
+    margin-left: 15px;
+  }
   font-weight: light;
   font-size: 0.65em;
   color: #777;

@@ -1,7 +1,8 @@
 .slick-dots {
-  padding: 10px 30px;
   box-sizing: border-box;
   bottom: 0;
+  white-space:nowrap;
+  overflow:hidden;
 }
 
 .slick-dots li {

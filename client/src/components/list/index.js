@@ -108,6 +108,5 @@ const ScrollingDiv = styled.div`
 
 const Container = styled.div`
   flex: 2;
-  border-right: solid 1px #21ce99;
   overflow: scroll;
 `;

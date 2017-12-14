@@ -7,7 +7,7 @@ class Home extends React.Component {
     return (
       <Container>
         <List listings={this.props.listings} loading={this.props.loading} />
-        <Map listings={this.props.listings} initializeMap={this.props.initializeMap} />
+        <Map listings={this.props.listings} initializeMap={this.props.initializeMap} location={this.props.location}/>
       </Container>
     );
   }

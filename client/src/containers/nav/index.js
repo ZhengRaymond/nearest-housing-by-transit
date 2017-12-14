@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components';
 import SearchIconFA from 'react-icons/lib/fa/search';
 import PlacesAutocomplete from 'react-places-autocomplete';
+import MenuIcon from 'react-icons/lib/md/menu';
 import './styles.css';
 
 class Nav extends Component {
@@ -11,12 +12,14 @@ class Nav extends Component {
     this.state = {
       activeTab: 'Home',
       search: '',
-      searchStyle: initialStyle
+      searchStyle: initialStyle,
+      dropdownOpen: true,
     };
     this.onSearchChange = this.onSearchChange.bind(this);
     this.tabClick = this.tabClick.bind(this);
     this.onSelect = this.onSelect.bind(this);
     this.onError = this.onError.bind(this);
+    this.toggleDropdown = this.toggleDropdown.bind(this);
   }
 
   onSearchChange(search) {
@@ -45,42 +48,55 @@ class Nav extends Component {
     this.setState({ ...this.state, error });
   }
 
+  toggleDropdown() {
+    this.setState({ ...this.state, dropdownOpen: !this.state.dropdownOpen });
+  }
+
   render() {
     const { activeTab } = this.state;
     return (
       <Container>
-        <Main>
-          <Header>
-            <SubHeader>
-              <Link onClick={this.tabClick} style={{ borderColor: 'Home' === activeTab ? '#26ffbd' : 'transparent' }} to="/">Home</Link>
-            </SubHeader>
-            <SearchInput disabled={this.props.loading} className={this.state.error ? 'error' : ''}>
-              <SearchIcon/>
-              <PlacesAutocomplete
-                inputProps={{
-                  value: this.state.search,
-                  onChange: this.onSearchChange,
-                  placeholder: "e.g. Googleplex, Mountain View, CA",
-                  autoFocus: true
-                }}
-                options={{
-                  componentRestrictions: {
-                    country: 'us'
-                  }
-                }}
-                onError={this.onError}
-                highlightFirstSuggestion={true}
-                onSelect={this.onSelect}
-                styles={ this.state.searchStyle }
-              />
-              { /* <Details className="details"/> */ }
-            </SearchInput>
-            <SubHeader>
-              <Link onClick={this.tabClick} style={{ borderColor: 'About' === activeTab ? '#26ffbd' : 'transparent' }} to="/about">About</Link>
-              <Link onClick={this.tabClick} style={{ borderColor: 'Contact' === activeTab ? '#26ffbd' : 'transparent' }} to="/contact">Contact</Link>
-            </SubHeader>
-          </Header>
-        </Main>
+        <Header dropdownOpen={this.state.dropdownOpen}>
+          <MenuButton>
+            <input type="checkbox" onClick={this.toggleDropdown} value={!this.state.dropdownOpen}/>
+            <span/>
+            <span/>
+            <span/>
+          </MenuButton>
+          <SubHeader>
+            <SubHeaderItem onClick={this.tabClick} selected={'Home' === activeTab} to="/">Home</SubHeaderItem>
+          </SubHeader>
+          <SearchInput disabled={this.props.loading} className={this.state.error ? 'error' : ''}>
+            <SearchIcon/>
+            <PlacesAutocomplete
+              inputProps={{
+                value: this.state.search,
+                onChange: this.onSearchChange,
+                placeholder: "e.g. Googleplex, Mountain View, CA",
+                autoFocus: true
+              }}
+              options={{
+                componentRestrictions: {
+                  country: 'us'
+                }
+              }}
+              onError={this.onError}
+              highlightFirstSuggestion={true}
+              onSelect={this.onSelect}
+              styles={ this.state.searchStyle }
+            />
+            { /* <Details className="details"/> */ }
+          </SearchInput>
+          <SubHeader>
+            <SubHeaderItem onClick={this.tabClick} selected={'About' === activeTab} to="/about">About</SubHeaderItem>
+            <SubHeaderItem onClick={this.tabClick} selected={'Contact' === activeTab} to="/contact">Contact</SubHeaderItem>
+          </SubHeader>
+        </Header>
+        <DropdownMenu className={this.state.dropdownOpen ? 'active' : ''}>
+          <MenuItem onClick={this.tabClick} to="/">Home</MenuItem>
+          <MenuItem onClick={this.tabClick} to="/about">About</MenuItem>
+          <MenuItem onClick={this.tabClick} to="/contact">Contact</MenuItem>
+        </DropdownMenu>
       </Container>
     );
   }
@@ -95,30 +111,163 @@ const Container = styled.div`
   max-height: 200px;
 `;
 
-const Main = styled.div`
+const Header = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%;
+  margin: 0;
+  top: 0px;
+  z-index: 2;
 
+  box-shadow: ${props => props.dropdownOpen ? '0 1px 10px rgba(0, 0, 0, 0.5)' : 'none' };
+  background-color: white;
 `;
 
-const Details = styled.div`
+const SubHeader = styled.div`
+  display: flex;
+  margin-top: 4px;
+  display: visible;
+
+  @media(max-width: 850px) {
+    display: none;
+  }
+`;
+
+const SubHeaderItem = styled(Link).attrs({
+  color: props => props.selected ? '#26ffbd' : '#666',
+  borderColor: props => props.selected ? '#26ffbd' : 'transparent'
+})`
+  padding: 12px 20px;
+  text-decoration: none;
+  color: ${props => props.color};
+  border-bottom: solid 4px ${props => props.borderColor };
+  transition: 0.4s ease;
+  font-weight: 900;
+  font-size: 18px;
+
+  &:hover {
+    transition: 0.4s ease;
+    color: #26ffbd;
+  }
+`;
+
+// margin-left: 21px;
+const MenuButton = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+  width: 70px;
+  height: 55px;
+
+  @media(min-width: 851px) {
+    display: none;
+  }
+
+  & input {
+    position: absolute;
+    top: 12px;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+    margin: 0;
+
+    cursor: pointer;
+    opacity: 0;
+    z-index: 2;
+    background-color: red;
+  }
+
+  & span {
+    display: block;
+    width: 31px;
+    height: 4px;
+    margin: 2px 0;
+    border-radius: 3px;
+    background-color: #555;
+    transform-origin: 4px 0px;
+    transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                opacity 0.55s ease;
+  }
+
+  &:hover span {
+    background-color: #26ffbd;
+  }
+
+  & span:nth-child(2) {
+    transform-origin: 0% 0%;
+  }
+
+  & span:nth-child(4) {
+    transform-origin: 0% 100%;
+  }
+
+  & input:checked ~ span:nth-child(2) {
+    transform: rotate(45deg) translate(-3px, -4px);
+  }
+
+  & input:checked ~ span:nth-child(3) {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.2, 0.2);
+  }
+
+  & input:checked ~ span:nth-child(4) {
+    transform: rotate(-45deg);
+  }
+`;
+
+const DropdownMenu = styled.div`
   position: absolute;
-  left: 0%;
   top: 55px;
   z-index: 1;
-  width: 100vw;
-  height: 100px;
-  max-height: 0px;
+  width: 100%;
+  overflow: hidden;
 
-  border-bottom: solid 6px #888;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.96);
-  transition: 0.3s linear;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: white;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+
+  transition: 0.5s ease;
+  &.active {
+    top: -120px;
+    transition: 0.5s ease;
+  }
 `;
 
-const SearchIcon = styled(SearchIconFA)`
-  color: #888;
-  margin: auto 10px;
-  position: absolute;
+const MenuItem = styled(Link)`
+  padding: 15px 20px;
+  border: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: 0.3s ease;
+
+  background-color: white;
+  color: #555;
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 18px;
+
+  &:hover {
+    color: #21ce99;
+    transition: 0.3s ease;
+  }
+
+  &:active {
+    color: #26ffbd;
+    transition: 0s;
+  }
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const SearchInput = styled.div`
@@ -127,6 +276,9 @@ const SearchInput = styled.div`
   align-items: center;
   box-sizing: border-box;
   margin: 6px 20px;
+  @media(max-width: 850px) {
+    margin-left: 0;
+  }
   background-color: #eee;
   border-radius: 6px;
   border: solid 1px ${props => props.disabled ? '#bbb' : '#fff' };
@@ -170,39 +322,28 @@ const SearchInput = styled.div`
   }
 `;
 
-const Header = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  width: 100%;
-  margin: 0;
-  top: 0px;
-
-  background-color: white;
-  border-bottom: solid 1px #c0eadd;
-
-  & a {
-    padding: 12px 20px;
-    color: #21ce99;
-    text-decoration: none;
-    border-bottom: solid 4px transparent;
-    transition: 0.4s ease;
-    font-weight: 900;
-    font-family: Montserrat;
-    font-size: 18px;
-  }
-
-  & a:hover {
-    transition: 0.4s ease;
-    color: #26ffbd;
-  }
+const SearchIcon = styled(SearchIconFA)`
+  color: #888;
+  margin: auto 10px;
+  position: absolute;
 `;
 
-const SubHeader = styled.div`
-  display: flex;
-  margin-top: 4px;
+const Details = styled.div`
+  position: absolute;
+  left: 0%;
+  top: 55px;
+  z-index: 1;
+  width: 100vw;
+  height: 100px;
+  max-height: 0px;
+
+  border-bottom: solid 6px #888;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.96);
+  transition: 0.3s linear;
 `;
+
 
 const initialStyle = {
   root: {
