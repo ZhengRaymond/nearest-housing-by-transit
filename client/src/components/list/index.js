@@ -17,7 +17,6 @@ class List extends React.Component {
   }
 
   loadMore(page) {
-    console.log('loadMore');
     var { listingElements, lastLoaded, hasMore } = this.state;
     for (var i = lastLoaded; i < lastLoaded + 10; i++) {
       if (i >= this.props.listings.length) {

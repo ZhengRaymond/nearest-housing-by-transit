@@ -34,6 +34,7 @@ class Listing extends React.Component {
 }
 
 const ImageSlider = (props) => {
+  console.log('image props', props);
   if (props.images && props.images.length > 0) {
     const images = _.uniq(props.images).map(
       // (imageURL) => (<ImageContainer key={imageURL}><img src={imageURL}/></ImageContainer>)
@@ -85,6 +86,7 @@ export default Listing;
 const ListingContainer = styled.div`
   display: flex;
   flex-direction: row;
+  max-height: 200px;
   @media (max-width: 1000px) {
     flex-direction: column;
   }
