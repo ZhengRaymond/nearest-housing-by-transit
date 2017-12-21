@@ -35,9 +35,10 @@ class App extends Component {
           <Route exact path="/"
             render={(props) => (
               <Home
-                listings={this.props.listings}
+                data={this.props.data}
                 initializeMap={this.initializeMap}
                 loading={this.props.loading}
+                map={this.state.map}
                 location={this.state.location}
               />
             )}
@@ -51,17 +52,24 @@ class App extends Component {
 }
 
 
-const mapStateToProps = ({ listings }) => {
-  if (listings.data && !listings.loading) {
+const mapStateToProps = ({ properties }) => {
+  if (properties.loading) {
+    return {
+      loading: true,
+      data: {}
+    }
+  }
+
+  if (properties.data) {
     return {
       loading: false,
-      listings: listings.data
+      data: properties.data
     }
   }
 
   return {
-    loading: true,
-    listings: []
+    loading: false,
+    data: {}
   }
 
 };

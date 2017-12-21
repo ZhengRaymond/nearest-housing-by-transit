@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import styles from 'react-responsive-carousel/lib/styles/carousel.min.css';
-import { Carousel } from 'react-responsive-carousel';
 import Slider from 'react-slick';
 const google = window.google;
 
@@ -37,8 +35,7 @@ const ImageSlider = (props) => {
   console.log('image props', props);
   if (props.images && props.images.length > 0) {
     const images = _.uniq(props.images).map(
-      // (imageURL) => (<ImageContainer key={imageURL}><img src={imageURL}/></ImageContainer>)
-      (imageURL) => (<ImageContainer key={imageURL}><img src={imageURL}/></ImageContainer>)
+      (imageURL) => (<ImageContainer key={imageURL}><img alt={imageURL} src={imageURL}/></ImageContainer>)
     );
     const settings = {
       dots: true,
@@ -89,6 +86,7 @@ const ListingContainer = styled.div`
   max-height: 200px;
   @media (max-width: 1000px) {
     flex-direction: column;
+    max-height: 500px;
   }
   align-items: stretch;
   padding: 20px;

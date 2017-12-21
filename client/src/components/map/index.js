@@ -33,9 +33,14 @@ class Map extends React.Component {
     this.props.initializeMap(map);
   }
 
-
-
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.refs.map, this.props.map) {
+      const { lat, lng } = this.props.address;
+      if (prevProps.address.lat !== lat || prevProps.address.lng !== lng) {
+        this.props.map.setCenter({ lat, lng });
+        this.props.map.setZoom(12);
+      }
+    }
 
     // var marker = new google.maps.Marker({
     //   position: newPos,

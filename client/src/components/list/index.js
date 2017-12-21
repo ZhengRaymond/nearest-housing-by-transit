@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroller';
-import _ from 'lodash';
-
 import Listing from '../listing';
 
 class List extends React.Component {
@@ -17,13 +15,12 @@ class List extends React.Component {
   }
 
   loadMore(page) {
-    var { listingElements, lastLoaded, hasMore } = this.state;
+    var { lastLoaded, hasMore } = this.state;
     for (var i = lastLoaded; i < lastLoaded + 10; i++) {
       if (i >= this.props.listings.length) {
         hasMore = false;
         break;
       }
-      // const listing = this.props.listings[i];
       var listings = this.state.listings;
       listings.push((
         this.props.listings[i]
@@ -38,11 +35,12 @@ class List extends React.Component {
   }
 
   render() {
+    console.log('this.props', this.props);
     let messages;
     if (this.props.loading) {
       messages = [ "Loading..." ];
     }
-    else if (this.props.listings.length === 0) {
+    else if (!this.props.listings || this.props.listings.length === 0) {
       messages = [
         "No results.",
         "Enter a location to find nearby housing."
@@ -60,7 +58,6 @@ class List extends React.Component {
         </Container>
       )
     }
-
     return (
       <Container>
         <InfiniteScroll

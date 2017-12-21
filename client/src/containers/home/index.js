@@ -4,10 +4,13 @@ import styled from 'styled-components';
 
 class Home extends React.Component {
   render() {
+    const { lat, lng, address, listings } = this.props.data;
+    const { loading, initializeMap, location, map } = this.props;
+    console.log('PROPS', this.props);
     return (
       <Container>
-        <List listings={this.props.listings} loading={this.props.loading} />
-        <Map listings={this.props.listings} initializeMap={this.props.initializeMap} location={this.props.location}/>
+        <List listings={listings} loading={loading} />
+        <Map address={{ lat, lng, address }} initializeMap={initializeMap} map={map} location={location}/>
       </Container>
     );
   }

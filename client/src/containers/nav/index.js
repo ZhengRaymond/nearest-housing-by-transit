@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components';
 import SearchIconFA from 'react-icons/lib/fa/search';
 import PlacesAutocomplete from 'react-places-autocomplete';
-import MenuIcon from 'react-icons/lib/md/menu';
 import './styles.css';
 
 class Nav extends Component {
@@ -137,12 +136,12 @@ const SubHeader = styled.div`
 
 const SubHeaderItem = styled(Link).attrs({
   color: props => props.selected ? '#26ffbd' : '#666',
-  borderColor: props => props.selected ? '#26ffbd' : 'transparent'
+  border: props => props.selected ? '#26ffbd' : 'transparent'
 })`
   padding: 12px 20px;
   text-decoration: none;
   color: ${props => props.color};
-  border-bottom: solid 4px ${props => props.borderColor };
+  border-bottom: solid 4px ${props => props.border };
   transition: 0.4s ease;
   font-weight: 900;
   font-size: 18px;
@@ -326,22 +325,6 @@ const SearchIcon = styled(SearchIconFA)`
   color: #888;
   margin: auto 10px;
   position: absolute;
-`;
-
-const Details = styled.div`
-  position: absolute;
-  left: 0%;
-  top: 55px;
-  z-index: 1;
-  width: 100vw;
-  height: 100px;
-  max-height: 0px;
-
-  border-bottom: solid 6px #888;
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  background-color: rgba(255, 255, 255, 0.96);
-  transition: 0.3s linear;
 `;
 
 

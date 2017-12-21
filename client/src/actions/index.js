@@ -1,6 +1,5 @@
 const axios = require('axios');
 const API = 'http://localhost:8080/api'
-const lodash = require('lodash');
 
 export const REQUEST_LISTINGS = 'REQUEST_LISTINGS ';
 export const RECEIVE_LISTINGS = 'RECEIVE_LISTINGS';
@@ -9,9 +8,9 @@ export const requestListings = subreddit => ({
   type: REQUEST_LISTINGS,
 });
 
-export const receiveListings = (listings) => ({
+export const receiveListings = (data) => ({
   type: RECEIVE_LISTINGS,
-  listings
+  data
 });
 
 export const getListings = (location, distance) => {
@@ -23,10 +22,11 @@ export const getListings = (location, distance) => {
         distance
       }
     }).then(({ data }) => {
+      console.log('action', data, distance);
       return dispatch(receiveListings(data));
     }).catch((err) => {
       console.error(err);
-      return dispatch(receiveListings([]));
+      return dispatch(receiveListings(null));
     });
   }
 }
