@@ -17,16 +17,17 @@ class Nav extends Component {
     this.onSearchChange = this.onSearchChange.bind(this);
     this.tabClick = this.tabClick.bind(this);
     this.onSelect = this.onSelect.bind(this);
-    this.onError = this.onError.bind(this);
+    // this.onError = this.onError.bind(this);
     this.toggleDropdown = this.toggleDropdown.bind(this);
   }
 
   onSearchChange(search) {
-    var error = this.state.error || false;
-    if (error === search) {
-      error = false;
-    }
-    this.setState({ ...this.state, error, search });
+    // var error = this.state.error || false;
+    // if (error === search) {
+      // error = false;
+    // }
+    // this.setState({ ...this.state, error, search });
+    this.setState({ ...this.state, search });
   }
 
   tabClick(e) {
@@ -37,15 +38,15 @@ class Nav extends Component {
     this.setState({ ...this.state, search: location });
     this.props.getListings(location, this.state.distance);
   }
-
-  onError() {
-    var error = this.state.error;
-    if (!error) {
-      let s = this.state.search;
-      error = s.substring(0, s.length - 1);
-    }
-    this.setState({ ...this.state, error });
-  }
+  //
+  // onError() {
+  //   var error = this.state.error;
+  //   if (!error) {
+  //     let s = this.state.search;
+  //     error = s.substring(0, s.length - 1);
+  //   }
+  //   this.setState({ ...this.state, error });
+  // }
 
   toggleDropdown() {
     this.setState({ ...this.state, dropdownOpen: !this.state.dropdownOpen });
@@ -79,7 +80,7 @@ class Nav extends Component {
                   country: 'us'
                 }
               }}
-              onError={this.onError}
+              // onError={this.onError}
               highlightFirstSuggestion={true}
               onSelect={this.onSelect}
               styles={ this.state.searchStyle }

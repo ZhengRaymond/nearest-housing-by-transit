@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { getListings } from '../../actions';
 
 import Nav from '../nav';
-import Home from '../home';
+import Map from '../../components/map';
 import About from '../about';
 import Contact from '../contact';
 
@@ -34,7 +34,7 @@ class App extends Component {
         <Body className="body">
           <Route exact path="/"
             render={(props) => (
-              <Home
+              <Map
                 data={this.props.data}
                 initializeMap={this.initializeMap}
                 loading={this.props.loading}

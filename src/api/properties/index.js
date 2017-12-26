@@ -49,7 +49,7 @@ async function properties(req, res) {
   output.address = address;
 
   const async_listings = [];
-  // async_listings.push(getCraigslist(address.city, address.zipcode, distance));
+  async_listings.push(getCraigslist(address.city, address.zipcode, distance));
   // async_listings.push(getFacebook(address.city, address.zipcode, distance));
 
   response = await Promise.all(async_listings).catch(logger.error);

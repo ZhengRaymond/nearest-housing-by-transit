@@ -1,9 +1,6 @@
-import './styles.css';
-
-import List from './list';
 import Map from './map';
+import MapUI from './mapUI';
 
 export {
-  List,
-  Map,
+  Map, MapUI
 }
