@@ -31,6 +31,7 @@
   "author": "Jason Miller <jason@developit.ca>",
   "license": "MIT",
   "dependencies": {
+    "@google/maps": "^0.4.5",
     "body-parser": "^1.13.3",
     "chalk": "^2.3.0",
     "cheerio": "^1.0.0-rc.2",
@@ -40,6 +41,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.19.3",
     "morgan": "^1.9.0",
+    "node-craigslist": "^1.2.2",
     "node-geocoder": "^3.21.1",
     "promise": "^8.0.1",
     "request": "^2.83.0",
