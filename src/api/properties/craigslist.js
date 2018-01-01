@@ -71,9 +71,9 @@ function getCraigslist(city, zip, distance, max_price = 99999, min_price = 0) {
       price: listing.Ask,
       lat: listing.Latitude,
       lng: listing.Longitude,
-      url: listing.PostingURL
+      url: listing.PostingURL,
+      title: listing.PostingTitle
     })))
-    .then((listings) => { console.log(JSON.stringify(listings, null, 2)); return listings })
     .catch(logger.error)
 }
 

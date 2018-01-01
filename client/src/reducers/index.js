@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import { routerReducer } from 'react-router-redux'
-import { properties } from './propertiesReducer';
+import { listingsData } from './listingsDataReducer';
+import { listingDetails } from './listingDetailsReducer';
 
 export default combineReducers({
   routing: routerReducer,
-  properties
+  listingsData,
+  listingDetails
 })

@@ -1,4 +1,8 @@
-const axios = require('axios');
+'use strict';
+
+import axios from 'axios';
+import request from 'request-promise';
+import cheerio from 'cheerio';
 const API = 'http://localhost:8080/api'
 
 export const REQUEST_LISTINGS = 'REQUEST_LISTINGS';
@@ -10,26 +14,21 @@ export const requestListings = () => ({
   type: REQUEST_LISTINGS,
 });
 
-export const receiveListings = (data) => ({
+export const receiveListings = (listingsData) => ({
   type: RECEIVE_LISTINGS,
-  data
+  listingsData
 });
 
 export const getListings = (location, distance) => {
   return (dispatch) => {
     dispatch(requestListings());
-    axios.get(`${API}/properties`, {
-      params: {
-        location,
-        distance
-      }
-    }).then(({ data }) => {
-      console.log('action', data, distance);
-      return dispatch(receiveListings(data));
-    }).catch((err) => {
-      console.error(err);
-      return dispatch(receiveListings(null));
-    });
+    request.get({
+      url: `${API}/properties`,
+      qs: { location, distance }
+    })
+      .then((response) => JSON.parse(response))
+      .then((listingsData) => dispatch(receiveListings(listingsData)))
+      .catch((err) => dispatch(receiveListings(null)))
   }
 }
 
@@ -37,25 +36,29 @@ export const requestListingDetails = () => ({
   type: REQUEST_LISTING_DETAILS,
 });
 
-export const receiveListingDetails = (data) => ({
+export const receiveListingDetails = (listingDetails) => ({
   type: RECEIVE_LISTING_DETAILS,
-  data
+  listingDetails
 });
 
-export const getListingDetails = (url, lat, lng) => {
+export const getListingDetails = ({ url, lat, lng }) => {
   return (dispatch) => {
     dispatch(requestListingDetails());
-    // axios.get(`${API}/properties`, {
-    //   params: {
-    //     location,
-    //     distance
-    //   }
-    // }).then(({ data }) => {
-    //   console.log('action', data, distance);
-    //   return dispatch(receiveListings(data));
-    // }).catch((err) => {
-    //   console.error(err);
-    //   return dispatch(receiveListings(null));
-    // });
+
+    console.log('url', url);
+    request.get({
+      url: `${API}/propertyDetails`,
+      qs: { url }
+    })
+      .then((response) => JSON.parse(response))
+      .then((response) => dispatch(receiveListingDetails(response)))
+      .catch((err) => dispatch(receiveListingDetails(null)));
+
+    // const address = "1407 oak knoll drive";
+    // const description = "nice house for sale near lynbrook high school with lots of local amenities";
+    // const images = null;
+    // setTimeout(() => dispatch(receiveListingDetails({
+    //   address, description, images
+    // })), 500);
   }
 }

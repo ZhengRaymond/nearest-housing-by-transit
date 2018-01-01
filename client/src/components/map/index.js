@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import r360 from 'route360';
 import moment from 'moment';
 import MapUI from '../mapUI';
-import Detail from '../detail';
+import ListingDetail from '../listingDetail';
 import NavigationClose from 'material-ui/svg-icons/navigation/close';
 import $ from 'jquery';
 import Drawer from 'material-ui/Drawer';
@@ -24,14 +24,20 @@ class Map extends React.Component {
     var travelOptions = r360.travelOptions();
     travelOptions.addSource(source);
     travelOptions.addTarget(marker.target);
-    travelOptions.setTravelType('transit');
+    travelOptions.setTravelType('car');
     travelOptions.setServiceKey(R360_APIKEY);
     travelOptions.setServiceUrl('https://service.route360.net/northamerica/');
-    r360.RouteService.getRoutes(travelOptions, function(routes) {
-      routes.forEach(function(route) {
-        r360.LeafletUtil.fadeIn(routeLayer, route, 1000, "travelDistance");
-      });
-    });
+    r360.RouteService.getRoutes(travelOptions,
+      (routes) => {
+        console.log('routes', routes);
+        routes.forEach(function(route) {
+          r360.LeafletUtil.fadeIn(routeLayer, route, 250, "travelDistance");
+        });
+      },
+      (err) => {
+        console.log('error:', err);
+      }
+    );
 
     this.setState({ ...this.state, selectedListing: listing, drawerOpen: true });
   }
@@ -60,10 +66,10 @@ class Map extends React.Component {
   };
 
   componentDidMount() {
-    const latlng = [ 40.758896, -73.985130 ]; // initially new york
-    // const latlng = [ 52.51, 13.37]; // initially berlin
+    const clatlng = [ 40.758896, -73.985130 ]; // initially new york
+    // const clatlng = [ 52.51, 13.37]; // initially berlin
 
-    const map = L.map('map').setView(latlng, 10);
+    const map = L.map('map').setView(clatlng, 10);
     r360.basemap({ style: 'basic', apikey: R360_APIKEY }).addTo(map);
 
     const polygonLayer = r360.leafletPolygonLayer().addTo(map);
@@ -80,7 +86,7 @@ class Map extends React.Component {
     ]);
 
     const centerMarker = L.featureGroup().addTo(map);
-    const source = L.marker(latlng, { draggable: true }).on('dragend', () => this.updatePolygons(map, polygonLayer, source));
+    const source = L.marker(clatlng, { draggable: true }).on('dragend', () => this.updatePolygons(map, polygonLayer, source));
     source.addTo(centerMarker);
 
     const targetLayer = L.featureGroup().addTo(map);
@@ -93,22 +99,21 @@ class Map extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { map, polygonLayer, source, targetLayer, centerMarker } = this.state;
-    const { data } = this.props;
-    if (map && polygonLayer && data) {
-      const { lat, lng, listings } = data;
-      if (lat && lng && lat !== prevProps.data.lat && lng !== prevProps.data.lng) {
+    if (map) {
+      const { clat, clng, listings } = this.props;
+      if (clat && clng && clat !== prevProps.clat && clng !== prevProps.clng) {
         // set view and zoom
-        const latlng = [ lat, lng ];
-        map.setView(latlng, 12);
+        const clatlng = [ clat, clng ];
+        map.setView(clatlng, 12);
         // update Polygons
         centerMarker.clearLayers();
-        const source = L.marker(latlng, { draggable: true }).on('dragend', () => this.updatePolygons(map, polygonLayer, source));
+        const source = L.marker(clatlng, { draggable: true }).on('dragend', () => this.updatePolygons(map, polygonLayer, source));
         source.addTo(centerMarker);
 
         this.setState({ ...this.state, source });
         this.updatePolygons(map, polygonLayer, source);
       }
-      if (listings && (!prevProps.data.listings || listings.length !== prevProps.data.listings.length)) {
+      if (listings && (!prevProps.listings || listings.length !== prevProps.listings.length)) {
         targetLayer.clearLayers()
         listings.forEach((listing) => {
           if (listing.lat && listing.lng && listing.price) {
@@ -141,7 +146,7 @@ class Map extends React.Component {
           <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
             <Exit viewBox="0 0 20 20" onClick={() => this.setState({ ...this.state, drawerOpen: false })}/>
           </div>
-          <Detail data={this.state.selectedListing}/>
+          <ListingDetail data={this.state.selectedListing}/>
         </Drawer>
       </Container>
     );

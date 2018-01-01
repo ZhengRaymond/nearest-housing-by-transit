@@ -32,10 +32,12 @@ class App extends Component {
         <Nav className="nav" getListings={this.getListings} loading={this.props.loading} />
         {/*<button style={{position: 'absolute', zIndex: 2}} onClick={ () => console.log(this.props)}>SHOW PROPS </button>*/}
         <Body className="body">
-          <Route exact path="/"
+          <Route path="/"
             render={(props) => (
               <Map
-                data={this.props.data}
+                clat={this.props.lat}
+                clng={this.props.lng}
+                listings={this.props.listings}
                 initializeMap={this.initializeMap}
                 loading={this.props.loading}
                 map={this.state.map}
@@ -52,35 +54,9 @@ class App extends Component {
 }
 
 
-const mapStateToProps = ({ properties }) => {
-  if (properties.loading) {
-    return {
-      loading: true,
-      data: {}
-    }
-  }
+const mapStateToProps = ({ listingsData }) => (listingsData);
 
-  if (properties.data) {
-    return {
-      loading: false,
-      data: properties.data
-    }
-  }
-
-  return {
-    loading: false,
-    data: {}
-  }
-
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    getListings: (location, distance) => dispatch(getListings(location, distance))
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, { getListings })(App);
 
 
 const Main = styled.div`
